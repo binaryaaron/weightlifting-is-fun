@@ -1,7 +1,26 @@
 # weightlifting
 
 
-Libraries used for this post:
+#Weightlifting Is Fun
+
+I wrote [this](http://aarongonzales.net/2014/08/blackboxfitness/) a while ago and thought i'd post this data i've been keeping for a while. Using a combination of [Fitocracy](http://www.fitocracy.com/profile/aaron_gonzales/) and manual tracking, I've managed to log nearly every rep of every training session i've had for the last several years. 
+
+## methods
+### Getting Data
+Getting the data from Fitocracy was the only real chore. At the time of my acquisition (Feb. 2014), their API didn't allow direct export of the data to any reasonable format, so I downloaded each individual relevant file from the Performance tab in my profile page. Some regular expressions reshaped the data a bit from this:
+
+* "Activity","Date (YYYYMMDD)","Set",,"unit",,"unit","Combined","Points"
+* "Clean and Jerk",2012-08-23,3301,125,,3,,"125 lb || 3 reps","80"
+
+to this:
+
+* date, exercise, weight, units, reps, quarters, bodyweight, liftratio, totalweightperset
+* 2012-08-23, clean and jerk, 125, lb, 3, 2012-07-01, 165.3, 0.7562008, 375
+
+as i didn't need the "Points" category and the activity names were cleaned a bit. 
+
+Otherwise, R was used for this post. 
+### Libraries used for this post:
 
 ```r
 library(lubridate)
@@ -18,7 +37,9 @@ library(plyr)
 ##     here
 ```
 
-Reading and chopping up the data
+### Reading and chopping up the data in R.
+
+Lubridate is awesome. 
 
 ```r
 lifting <- read.csv("/dropbox/stats/weightlifting/liftinglog.csv", header=TRUE)
@@ -40,21 +61,10 @@ lifting <- subset(lifting, subset=exercise != "power snatch")
 lifting <- subset(lifting, subset=exercise != "power clean") 
 # lifting <- subset(lifting, subset=exercise != "front squat") 
 lifting <- droplevels(lifting)
-
-
-str(lifting)
 ```
+I dropped the power version of the snatch and clean due to inconsistent logging on my part.
 
-```
-## 'data.frame':	3488 obs. of  5 variables:
-##  $ date    : POSIXct, format: "2012-08-23" "2012-08-23" ...
-##  $ exercise: Factor w/ 9 levels "clean","clean and jerk",..: 2 2 2 2 2 2 2 2 2 2 ...
-##  $ weight  : num  125 135 145 155 165 125 135 145 155 165 ...
-##  $ units   : Factor w/ 1 level "lb": 1 1 1 1 1 1 1 1 1 1 ...
-##  $ reps    : int  3 2 2 2 1 3 2 2 2 1 ...
-```
-
-Adding date ranges by quarters for binning the lifts
+Adding date ranges by quarters for group the lifts by a three-month period.
 
 ```r
 lifting$quarters <- cut(lifting$date, breaks="quarter")
@@ -62,7 +72,7 @@ labs <- paste(substr(levels(lifting$quarters),1,4),"/",1:4, sep="")
 lifting$quarters <- factor(lifting$quarters) 
 ```
 
-Adding in bodyweight and a ratio of lift:bodyweight
+Adding in my bodyweight and a ratio of lift:bodyweight. The bodyweight is accurate roughly to 1.5 lb. 
 
 ```r
 lifting <- ddply( lifting, .(quarters), transform, bodyweight=161 + (4.3*as.numeric(quarters)))
@@ -83,47 +93,40 @@ range(lifting$liftratio)
 ```
 
 
-Adding in weight moved per set:
+I also added in weight moved per set, mostly because it's kind-of cool
 
 ```r
 lifting <- ddply( lifting, .(quarters), transform, totalweightperset= weight*reps)
-sum(lifting$totalweightperset)
-```
-
-```
-## [1] 1851664
-```
-
-```r
-fivenum(lifting$totalweightperset)
-```
-
-```
-## [1]   88.18  264.55  410.00  675.00 4050.00
 ```
 
 
-Plots 1
+## "Results" - or something like that.
+### Pretty pretty plots
+The following plot shows boxplots the ratio of lift:bodyweight number. Clearly, the deadlift and squat have the higher ratios here, as this make plenty of biomechanical sense. I don't train the trational deadlift very often anymore and i think that's why it's so skewed.
 
 ```r
 p <- ggplot(lifting, aes(exercise, liftratio))
-p + geom_boxplot()
-p + geom_violin()
+p <- p + geom_boxplot()
+print(p)
+# p + geom_violin()
 ```
 
-<img src="figure/minimal-unnamed-chunk-51.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" /><img src="figure/minimal-unnamed-chunk-52.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" style="display: block; margin: auto;" />
+<img src="figure/minimal-generalPl.png" title="plot of chunk generalPl" alt="plot of chunk generalPl" style="display: block; margin: auto;" />
 
 
 
+
+This next two plots are similar. Both show a similar thing - boxplots of weight moved or liftratio broken up by yearly quarter to show how they have changed over time. The red diamond denotes the highest value for the quarter and it's interesting to see some are considered outliers for that time period. The black line connects the mean value over time (the line in the boxes denotes the median). As i started maxout out more regularly over the last 9 months or so and stopped sets that had high volume (no more Crossfit for me) i have had more accurate numbers, perhpas.  
 
 
 ```r
 p <- ggplot(lifting, aes(quarters, weight))
 p <- p + geom_boxplot()
-p <- p + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=2)
-p <- p + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=4, shape=23, fill="red")
+p <- p + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=1.5)
+p <- p + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=2, shape=23, fill="red")
 p <- p + facet_wrap(~ exercise)
 p <- p + labs(
+    # title omitted; letting rmarkdown handle it
 #     title="Major lifts progression over time, by quarter  
 #               red diamond is the best lift for the quarter, black line is median
 #               weight lifted for the quarter. This includes
@@ -134,31 +137,40 @@ p <- p + theme(text = element_text(size=12),
         axis.text.x = element_text(angle=90, vjust=1, size=10),
         axis.text.y = element_text(size=10))
 print(p)
-```
-
-<img src="figure/minimal-unnamed-chunk-6.png" title="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." alt="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." style="display: block; margin: auto;" />
-
-
-
-```r
-p <- ggplot(lifting, aes(quarters, liftratio))
-p <- p + geom_boxplot()
-# p <- p + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=2)
-p <- p + stat_summary(aes(group=exercise), fun.y=mean, geom="line", size=2)
-# p <- p + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=4, shape=23, fill="red")
-p <- p + facet_wrap(~ exercise)
-p <- p + labs(
+p_2 <- ggplot(lifting, aes(quarters, liftratio))
+p_2 <- p_2 + geom_boxplot()
+# p_2 <- p_2 + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=2)
+p_2 <- p_2 + stat_summary(aes(group=exercise), fun.y=mean, geom="line", size=1.5)
+p_2 <- p_2 + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=2, shape=23, fill="red")
+p_2 <- p_2 + facet_wrap(~ exercise)
+p_2 <- p_2 + labs(
 #     title="Major lifts progression over time, by quarter  
 #               red diamond is the best lift for the quarter, black line is median
 #               weight lifted for the quarter. This includes
 #               warm up weights.", 
               y = "Ratio of amount lifted to bodyweight", 
               x="yearly quarter")
-p <- p + theme(text = element_text(size=12),
+p_2 <- p_2 + theme(text = element_text(size=12),
         axis.text.x = element_text(angle=90, vjust=1, size=10),
         axis.text.y = element_text(size=10))
-print(p)
+print(p_2)
+# library(gridExtra)
+# grid.arrange(p, p_2, ncol=2, main="Weightlifting Progression by quarters")
 ```
 
-<img src="figure/minimal-unnamed-chunk-7.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" style="display: block; margin: auto;" />
+<img src="figure/minimal-timeplots1.png" title="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." alt="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." style="display: block; margin: auto;" /><img src="figure/minimal-timeplots2.png" title="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." alt="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." style="display: block; margin: auto;" />
 
+I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. )
+
+### I've lifted almost two million pounds in two years
+...Which is a cool thing.
+
+```r
+sum(lifting$totalweightperset)
+```
+
+```
+## [1] 1851664
+```
+
+Weightlifting is fun. 
