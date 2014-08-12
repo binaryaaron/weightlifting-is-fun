@@ -1,0 +1,130 @@
+---
+title: "weightlifting"
+output:
+  html_document:
+    fig_height: 8
+    fig_width: 8
+    highlight: kate
+    keep_md: yes
+    number_sections: yes
+    theme: flatly
+    toc: yes
+---
+```{r setup, include=FALSE, cache=FALSE}
+library(knitr)
+# set global chunk options
+opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold', fig.width=8, fig.height=8, tidy=FALSE, cache=FALSE)
+# options(replace.assign=TRUE,width=90)
+```
+
+Libraries used for this post:
+```{r libraries}
+library(lubridate)
+library(ggplot2)
+library(plyr)
+
+```
+
+Reading and chopping up the data
+```{r}
+lifting <- read.csv("/dropbox/stats/weightlifting/liftinglog.csv", header=TRUE)
+# lifting <- read.csv("/analysis/googledrive/liftinglog.csv", header=TRUE)
+# lifting$date <- ymd(lifting$date)
+lifting$date <- mdy(lifting$date)
+lifting$exercise <- as.character(lifting$exercise)
+lifting$exercise <- gsub("barbell ", "", lifting$exercise)
+lifting$exercise <- as.factor(lifting$exercise)
+# lifting <- lifting[,-7]
+kg <- subset(lifting, subset = units=="kg")
+lb <- subset(lifting, subset = units=="lb")
+kg$weight <- kg$weight * 2.20462
+kg$units <- "lb"
+
+lifting <- rbind(lb,kg)
+
+lifting <- subset(lifting, subset=exercise != "power snatch") 
+lifting <- subset(lifting, subset=exercise != "power clean") 
+# lifting <- subset(lifting, subset=exercise != "front squat") 
+lifting <- droplevels(lifting)
+
+
+str(lifting)
+```
+
+Adding date ranges by quarters for binning the lifts
+```{r}
+lifting$quarters <- cut(lifting$date, breaks="quarter")
+labs <- paste(substr(levels(lifting$quarters),1,4),"/",1:4, sep="")
+lifting$quarters <- factor(lifting$quarters) 
+```
+
+Adding in bodyweight and a ratio of lift:bodyweight
+```{r}
+lifting <- ddply( lifting, .(quarters), transform, bodyweight=161 + (4.3*as.numeric(quarters)))
+lifting$liftratio <- lifting$weight / lifting$bodyweight
+range(lifting$bodyweight)
+range(lifting$liftratio)
+```
+
+
+Adding in weight moved per set:
+```{r}
+lifting <- ddply( lifting, .(quarters), transform, totalweightperset= weight*reps)
+sum(lifting$totalweightperset)
+fivenum(lifting$totalweightperset)
+```
+
+
+Plots 1
+```{r }
+p <- ggplot(lifting, aes(exercise, liftratio))
+p + geom_boxplot()
+p + geom_violin()
+```
+
+
+
+
+```{r, fig.cap="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights."}
+p <- ggplot(lifting, aes(quarters, weight))
+p <- p + geom_boxplot()
+p <- p + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=2)
+p <- p + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=4, shape=23, fill="red")
+p <- p + facet_wrap(~ exercise)
+p <- p + labs(
+#     title="Major lifts progression over time, by quarter  
+#               red diamond is the best lift for the quarter, black line is median
+#               weight lifted for the quarter. This includes
+#               warm up weights.", 
+              y = "Weight (Lb)", 
+              x="yearly quarter")
+p <- p + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1, size=10),
+        axis.text.y = element_text(size=10))
+print(p)
+
+```
+
+
+```{r}
+p <- ggplot(lifting, aes(quarters, liftratio))
+p <- p + geom_boxplot()
+# p <- p + stat_summary(aes(group=exercise), fun.y=median, geom="line", size=2)
+p <- p + stat_summary(aes(group=exercise), fun.y=mean, geom="line", size=2)
+# p <- p + stat_summary(aes(group=exercise), fun.y=max, geom="point", size=4, shape=23, fill="red")
+p <- p + facet_wrap(~ exercise)
+p <- p + labs(
+#     title="Major lifts progression over time, by quarter  
+#               red diamond is the best lift for the quarter, black line is median
+#               weight lifted for the quarter. This includes
+#               warm up weights.", 
+              y = "Ratio of amount lifted to bodyweight", 
+              x="yearly quarter")
+p <- p + theme(text = element_text(size=12),
+        axis.text.x = element_text(angle=90, vjust=1, size=10),
+        axis.text.y = element_text(size=10))
+print(p)
+
+
+```
+
