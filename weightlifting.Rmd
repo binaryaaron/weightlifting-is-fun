@@ -17,7 +17,7 @@ opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold', 
 # options(replace.assign=TRUE,width=90)
 ```
 
-#Weightlifting Is Fun
+# Weightlifting Is Fun
 
 I wrote [this](http://aarongonzales.net/2014/08/blackboxfitness/) a while ago and thought i'd post this data i've been keeping for a while. Using a combination of [Fitocracy](http://www.fitocracy.com/profile/aaron_gonzales/) and manual tracking, I've managed to log nearly every rep of every training session i've had for the last several years. 
 
