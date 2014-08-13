@@ -1,7 +1,18 @@
-# weightlifting
+---
+title: "weightlifting"
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 4
+    highlight: kate
+    keep_md: yes
+    number_sections: yes
+    theme: flatly
+    toc: yes
+---
 
 
-#Weightlifting Is Fun
+# Weightlifting Is Fun
 
 I wrote [this](http://aarongonzales.net/2014/08/blackboxfitness/) a while ago and thought i'd post this data i've been keeping for a while. Using a combination of [Fitocracy](http://www.fitocracy.com/profile/aaron_gonzales/) and manual tracking, I've managed to log nearly every rep of every training session i've had for the last several years. 
 
@@ -26,15 +37,6 @@ Otherwise, R was used for this post.
 library(lubridate)
 library(ggplot2)
 library(plyr)
-```
-
-```
-## 
-## Attaching package: 'plyr'
-## 
-## The following object is masked from 'package:lubridate':
-## 
-##     here
 ```
 
 ### Reading and chopping up the data in R.
@@ -114,9 +116,13 @@ print(p)
 <img src="figure/minimal-generalPl.png" title="plot of chunk generalPl" alt="plot of chunk generalPl" style="display: block; margin: auto;" />
 
 
-
-
-This next two plots are similar. Both show a similar thing - boxplots of weight moved or liftratio broken up by yearly quarter to show how they have changed over time. The red diamond denotes the highest value for the quarter and it's interesting to see some are considered outliers for that time period. The black line connects the mean value over time (the line in the boxes denotes the median). As i started maxout out more regularly over the last 9 months or so and stopped sets that had high volume (no more Crossfit for me) i have had more accurate numbers, perhpas.  
+This next two plots are similar. Both show a similar thing - boxplots of 
+weight moved or liftratio broken up by yearly quarter to show how they 
+have changed over time. The red diamond denotes the highest value for the 
+quarter and it's interesting to see some are considered outliers for that time period. 
+The black line connects the mean value over time (the line in the boxes denotes the median). 
+As I started maxing out my lifts more regularly over the last 9 months and stopped 
+doing sets that had high volume (no more Crossfit for me) I have had more accurate numbers, perhpas.  
 
 
 ```r
@@ -160,14 +166,14 @@ print(p_2)
 
 <img src="figure/minimal-timeplots1.png" title="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." alt="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." style="display: block; margin: auto;" /><img src="figure/minimal-timeplots2.png" title="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." alt="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights." style="display: block; margin: auto;" />
 
-I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. )
+I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. ) I should probably train my front squat a bit more and perhaps track other lifts, like overhead squats or snatch assistance movements. 
 
 ### I've lifted almost two million pounds in two years
-...Which is a cool thing.
 
 ```r
 sum(lifting$totalweightperset)
 ```
+...Which is a cool thing.
 
 ```
 ## [1] 1851664

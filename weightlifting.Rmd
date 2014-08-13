@@ -104,8 +104,14 @@ print(p)
 
 
 
+This next two plots are similar. Both show a similar thing - boxplots of 
+weight moved or liftratio broken up by yearly quarter to show how they 
+have changed over time. The red diamond denotes the highest value for the 
+quarter and it's interesting to see some are considered outliers for that time period. 
+The black line connects the mean value over time (the line in the boxes denotes the median). 
+As I started maxing out my lifts more regularly over the last 9 months and stopped 
+doing sets that had high volume (no more Crossfit for me) I have had more accurate numbers, perhpas.  
 
-This next two plots are similar. Both show a similar thing - boxplots of weight moved or liftratio broken up by yearly quarter to show how they have changed over time. The red diamond denotes the highest value for the quarter and it's interesting to see some are considered outliers for that time period. The black line connects the mean value over time (the line in the boxes denotes the median). As i started maxout out more regularly over the last 9 months or so and stopped sets that had high volume (no more Crossfit for me) i have had more accurate numbers, perhpas.  
 
 ```{r timeplots, fig.cap="Major lifts progression over time, by quarter. red diamond is the best lift for the quarter, black line is median weight lifted for the quarter. This includes warm up weights.",fig.width=8, fig.height=8,fig.show='hold' }
 p <- ggplot(lifting, aes(quarters, weight))
@@ -146,7 +152,7 @@ print(p_2)
 # grid.arrange(p, p_2, ncol=2, main="Weightlifting Progression by quarters")
 ```
 
-I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. )
+I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. ) I should probably train my front squat a bit more and perhaps track other lifts, like overhead squats or snatch assistance movements. 
 
 ### I've lifted almost two million pounds in two years
 ...Which is a cool thing.
