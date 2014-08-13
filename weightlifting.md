@@ -39,6 +39,15 @@ library(ggplot2)
 library(plyr)
 ```
 
+```
+## 
+## Attaching package: 'plyr'
+## 
+## The following object is masked from 'package:lubridate':
+## 
+##     here
+```
+
 ### Reading and chopping up the data in R.
 
 Lubridate is awesome. 
@@ -116,6 +125,7 @@ print(p)
 <img src="figure/minimal-generalPl.png" title="plot of chunk generalPl" alt="plot of chunk generalPl" style="display: block; margin: auto;" />
 
 
+
 This next two plots are similar. Both show a similar thing - boxplots of 
 weight moved or liftratio broken up by yearly quarter to show how they 
 have changed over time. The red diamond denotes the highest value for the 
@@ -123,6 +133,7 @@ quarter and it's interesting to see some are considered outliers for that time p
 The black line connects the mean value over time (the line in the boxes denotes the median). 
 As I started maxing out my lifts more regularly over the last 9 months and stopped 
 doing sets that had high volume (no more Crossfit for me) I have had more accurate numbers, perhpas.  
+
 
 
 ```r
@@ -169,11 +180,11 @@ print(p_2)
 I like seeing that overall, it's clear that i'm getting stronger, both in pounds moved and in the ratio of pounds moved to bodyweight (though not so great in the overhead or olympic lifts as much, but i suppose that's expected. ) I should probably train my front squat a bit more and perhaps track other lifts, like overhead squats or snatch assistance movements. 
 
 ### I've lifted almost two million pounds in two years
+...Which is a cool thing.
 
 ```r
 sum(lifting$totalweightperset)
 ```
-...Which is a cool thing.
 
 ```
 ## [1] 1851664
